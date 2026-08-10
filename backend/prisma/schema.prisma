@@ -1,0 +1,133 @@
+// schema.prisma
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique // Ej: bar-la-esquina
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  users       User[]
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  name           String
+  role           String   @default("STUDENT")
+  companyId      String?
+  company        Company? @relation(fields: [companyId], references: [id])
+  
+  progress       Progress[]
+  quizAttempts   QuizAttempt[]
+  certifications Certification[]
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  thumbnail   String?
+  active      Boolean  @default(true)
+  
+  modules     Module[]
+  certifications Certification[]
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  title       String
+  order       Int
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+  
+  lessons     Lesson[]
+  quiz        Quiz?
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  title       String
+  videoUrl    String?  // URL del streaming HLS
+  pdfUrl      String?
+  order       Int
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id])
+  
+  progress    Progress[]
+}
+
+model Quiz {
+  id          String   @id @default(uuid())
+  title       String
+  minScore    Int      @default(80)
+  moduleId    String   @unique
+  module      Module   @relation(fields: [moduleId], references: [id])
+  
+  questions   Question[]
+  attempts    QuizAttempt[]
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  text        String
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  
+  answers     Answer[]
+}
+
+model Answer {
+  id          String   @id @default(uuid())
+  text        String
+  isCorrect   Boolean  @default(false)
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id])
+}
+
+// Seguimiento y Analítica
+model Progress {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  isCompleted Boolean  @default(false)
+  timeWatched Int      @default(0) // En segundos
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  score       Int
+  passed      Boolean
+  createdAt   DateTime @default(now())
+}
+
+model Certification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+  pdfUrl      String
+  issuedAt    DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
