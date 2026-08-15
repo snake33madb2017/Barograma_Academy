@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, BookOpen, AlertCircle, TrendingUp, Search, Bell } from 'lucide-react';
+import { Users, BookOpen, AlertCircle, TrendingUp, Search, Bell, LogOut } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchApi } from '../../lib/api';
 
@@ -10,6 +10,12 @@ export default function AdminDashboard() {
   const [kpis, setKpis] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.replace('/login');
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -47,6 +53,9 @@ export default function AdminDashboard() {
           <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border-2" style={{ borderColor: '#D4BC6F' }}>
             <span className="text-sm font-bold">AD</span>
           </div>
+          <button onClick={handleLogout} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-red-400 hover:text-red-300 ml-2" title="Cerrar Sesión">
+            <LogOut className="w-5 h-5" />
+          </button>
         </div>
       </header>
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactPlayer from 'react-player';
-import { PlayCircle, CheckCircle, Lock, Award, X } from 'lucide-react';
+import { PlayCircle, CheckCircle, Lock, Award, X, LogOut } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { fetchApi } from '../../lib/api';
 
@@ -17,6 +17,12 @@ export default function StudentDashboard() {
   const [courseFinished, setCourseFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.replace('/login');
+  };
 
   useEffect(() => {
     const loadCourse = async () => {
@@ -153,8 +159,13 @@ export default function StudentDashboard() {
           <img src="/logo.png" alt="Barograma" className="h-8 object-contain" />
           <h1 className="text-xl font-bold" style={{ color: '#D4BC6F' }}>Academy</h1>
         </div>
-        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center border border-gray-500">
-          <span className="text-xs font-semibold">ME</span>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center border border-gray-500">
+            <span className="text-xs font-semibold">ME</span>
+          </div>
+          <button onClick={handleLogout} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-white" title="Cerrar Sesión">
+            <LogOut className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
