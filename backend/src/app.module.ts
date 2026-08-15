@@ -8,9 +8,10 @@ import { CoursesModule } from './courses/courses.module';
 import { CompaniesModule } from './companies/companies.module';
 import { ProgressModule } from './progress/progress.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, CoursesModule, CompaniesModule, ProgressModule, QuizzesModule],
+  imports: [PrismaModule, UsersModule, AuthModule, CoursesModule, CompaniesModule, ProgressModule, QuizzesModule, NotificationsModule],
   controllers: [AppController],
   providers: [AppService],
 })

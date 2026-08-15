@@ -17,6 +17,48 @@ export default function StudentDashboard() {
   const [courseFinished, setCourseFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [pushEnabled, setPushEnabled] = useState(false);
+
+  // Helper to convert VAPID key
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const subscribeToPush = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Las notificaciones push no están soportadas en este navegador.');
+      return;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BAAMkg-TJiryDSpt6w-ogZRK3Y6xmdLZZ6kesmghbsHxAX7QObNO0jqlC39ZrC0N0Opj7LWQTPozMl0wz2JJCtU';
+      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedVapidKey
+      });
+
+      await fetchApi('/notifications/subscribe', {
+        method: 'POST',
+        body: JSON.stringify(subscription)
+      });
+
+      setPushEnabled(true);
+      alert('¡Notificaciones activadas con éxito!');
+    } catch (e) {
+      console.error('Error subscribing to push:', e);
+      alert('Hubo un error al activar las notificaciones. Asegúrate de dar permisos en el navegador.');
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -160,6 +202,11 @@ export default function StudentDashboard() {
           <h1 className="text-xl font-bold" style={{ color: '#D4BC6F' }}>Academy</h1>
         </div>
         <div className="flex items-center space-x-3">
+          {!pushEnabled && (
+            <button onClick={subscribeToPush} className="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-full text-xs font-bold hover:bg-blue-600/30 transition-colors">
+              Activar Notificaciones
+            </button>
+          )}
           <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center border border-gray-500">
             <span className="text-xs font-semibold">ME</span>
           </div>

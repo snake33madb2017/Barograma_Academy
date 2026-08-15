@@ -17,6 +17,16 @@ export default function AdminDashboard() {
     router.replace('/login');
   };
 
+  const sendReminder = async (employeeId: string) => {
+    try {
+      await fetchApi(`/notifications/remind/${employeeId}`, { method: 'POST' });
+      alert('¡Recordatorio Push enviado con éxito!');
+    } catch (e) {
+      alert('Error al enviar el recordatorio. ¿Tiene el usuario notificaciones activadas?');
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -128,8 +138,10 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-bold mb-4 text-gray-800">Acciones Recomendadas</h3>
             <div className="space-y-4">
               <div className="p-4 bg-red-50 border border-red-100 rounded-lg">
-                <p className="text-sm text-red-800 font-medium mb-2">Carlos (Camarero) no ha avanzado en 5 días.</p>
-                <button className="text-xs font-bold text-white bg-red-600 px-3 py-1 rounded">Enviar Recordatorio Push</button>
+                <p className="text-sm text-red-800 font-medium mb-2">Probar notificación (enviártela a ti mismo para testear):</p>
+                <button onClick={() => sendReminder(user?.id)} className="text-xs font-bold text-white bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition-colors">
+                  Enviar Recordatorio Push
+                </button>
               </div>
               <div className="p-4 bg-green-50 border border-green-100 rounded-lg">
                 <p className="text-sm text-green-800 font-medium mb-2">María completó "Gestión de quejas".</p>
