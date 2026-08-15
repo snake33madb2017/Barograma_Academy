@@ -22,10 +22,15 @@ export const viewport: Viewport = {
   themeColor: "#D4BC6F",
 };
 
+import InstallPrompt from "@/components/InstallPrompt";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}>
-      <body className="min-h-full flex flex-col bg-black text-white">{children}</body>
+      <body className="min-h-full flex flex-col bg-black text-white">
+        {children}
+        <InstallPrompt />
+      </body>
     </html>
   );
 }
