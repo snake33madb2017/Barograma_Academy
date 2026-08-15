@@ -9,6 +9,14 @@ export default function InstallPrompt() {
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
+    // Check if event fired before React mounted
+    if ((window as any).deferredPWAInstallPrompt) {
+      setDeferredPrompt((window as any).deferredPWAInstallPrompt);
+      if (!sessionStorage.getItem('installDismissed')) {
+        setIsReadyForInstall(true);
+      }
+    }
+
     // Escuchar el evento antes de que se instale (Chrome/Edge/Android)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
