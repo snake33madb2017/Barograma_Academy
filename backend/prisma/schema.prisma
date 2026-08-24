@@ -31,7 +31,7 @@ model User {
   progress       Progress[]
   quizAttempts   QuizAttempt[]
   certifications Certification[]
-  pushSubscriptions PushSubscription[]
+  pushSubscription PushSubscription?
 }
 
 model Course {
@@ -134,12 +134,12 @@ model Certification {
 }
 
 model PushSubscription {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  endpoint  String   @unique
-  auth      String
-  p256dh    String
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  subscription String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  user         User     @relation(fields: [userId], references: [id])
 }
 

@@ -1,101 +1,40 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as webpush from 'web-push';
 
 @Injectable()
 export class NotificationsService {
-  private readonly logger = new Logger(NotificationsService.name);
-
   constructor(private prisma: PrismaService) {
+    // Configurar VAPID (usar variables de entorno)
     webpush.setVapidDetails(
-      'mailto:admin@barograma.com',
+      'mailto:tu-email@barograma.com',
       process.env.VAPID_PUBLIC_KEY || '',
       process.env.VAPID_PRIVATE_KEY || ''
     );
   }
 
-  async subscribe(userId: string, subscription: any) {
-    const { endpoint, keys } = subscription;
-    
-    // Check if subscription already exists
-    const existing = await this.prisma.pushSubscription.findUnique({
-      where: { endpoint }
-    });
-
-    if (existing) {
-      if (existing.userId !== userId) {
-        // Update user if endpoint is the same but user changed
-        await this.prisma.pushSubscription.update({
-          where: { endpoint },
-          data: { userId }
-        });
-      }
-      return { success: true, message: 'Already subscribed' };
-    }
-
-    // Create new subscription
-    await this.prisma.pushSubscription.create({
-      data: {
+  async saveSubscription(userId: string, subscription: any) {
+    await this.prisma.pushSubscription.upsert({
+      where: { userId },
+      update: { subscription: JSON.stringify(subscription) },
+      create: {
         userId,
-        endpoint,
-        auth: keys.auth,
-        p256dh: keys.p256dh,
-      }
+        subscription: JSON.stringify(subscription),
+      },
     });
-
-    return { success: true, message: 'Subscribed successfully' };
+    return { success: true };
   }
 
-  async sendReminder(adminCompanyId: string, employeeId: string) {
-    // Verify employee belongs to company
-    const employee = await this.prisma.user.findFirst({
-      where: { id: employeeId, companyId: adminCompanyId }
+  async sendNotification(userId: string, title: string, body: string) {
+    const userSubscription = await this.prisma.pushSubscription.findUnique({
+      where: { userId },
     });
 
-    if (!employee) {
-      throw new Error('Employee not found or unauthorized');
-    }
+    if (!userSubscription) throw new Error('Usuario no suscrito');
 
-    // Get subscriptions
-    const subscriptions = await this.prisma.pushSubscription.findMany({
-      where: { userId: employeeId }
-    });
-
-    if (subscriptions.length === 0) {
-      return { success: false, message: 'User has no push subscriptions' };
-    }
-
-    const payload = JSON.stringify({
-      title: 'Barograma Academy',
-      body: '¡Hola! Recuerda que tienes una capacitación pendiente de completar. ¡Entra ahora y avanza!',
-      icon: '/icons/icon-192x192.png',
-      url: '/dashboard'
-    });
-
-    let sent = 0;
-    let failed = 0;
-
-    for (const sub of subscriptions) {
-      try {
-        await webpush.sendNotification({
-          endpoint: sub.endpoint,
-          keys: {
-            auth: sub.auth,
-            p256dh: sub.p256dh
-          }
-        }, payload);
-        sent++;
-      } catch (e: any) {
-        if (e.statusCode === 404 || e.statusCode === 410) {
-          // Subscription expired or removed
-          await this.prisma.pushSubscription.delete({ where: { id: sub.id } });
-        } else {
-          this.logger.error('Failed to send push notification', e);
-        }
-        failed++;
-      }
-    }
-
-    return { success: true, sent, failed };
+    const subscription = JSON.parse(userSubscription.subscription);
+    const payload = JSON.stringify({ title, body });
+    
+    await webpush.sendNotification(subscription, payload);
   }
 }

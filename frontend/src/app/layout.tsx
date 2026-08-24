@@ -23,6 +23,7 @@ export const viewport: Viewport = {
 };
 
 import InstallPrompt from "@/components/InstallPrompt";
+import PushNotificationManager from "@/components/PushNotificationManager";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-black text-white">
         {children}
         <InstallPrompt />
+        <PushNotificationManager />
       </body>
     </html>
   );
