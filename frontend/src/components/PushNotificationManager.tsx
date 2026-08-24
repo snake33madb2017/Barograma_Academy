@@ -9,7 +9,7 @@ export default function PushNotificationManager() {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
+    if (process.env.NODE_ENV !== 'development' && 'serviceWorker' in navigator && 'PushManager' in window) {
       setIsSupported(true);
       registerServiceWorker();
     }

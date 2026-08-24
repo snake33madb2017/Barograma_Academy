@@ -2,7 +2,7 @@ import withPWAInit from 'next-pwa';
 
 const withPWA = withPWAInit({
   dest: 'public',
-  register: true,
+  register: process.env.NODE_ENV !== 'development',
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
   runtimeCaching: [
@@ -20,10 +20,17 @@ const withPWA = withPWAInit({
   ],
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: { unoptimized: true },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+  },
+  turbopack: {}
 };
 
 export default withPWA(nextConfig);

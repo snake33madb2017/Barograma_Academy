@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    router.replace('/login');
+    window.location.href = '/login';
   };
 
   const sendReminder = async (employeeId: string) => {

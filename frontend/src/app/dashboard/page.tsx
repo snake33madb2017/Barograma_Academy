@@ -63,7 +63,7 @@ export default function StudentDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    router.replace('/login');
+    window.location.href = '/login';
   };
 
   useEffect(() => {
@@ -79,8 +79,13 @@ export default function StudentDashboard() {
         if (data && data.length > 0) {
           setCourse(data[0]); // Take the first course for now
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
+        if (e.message?.includes('Unauthorized') || e.message?.includes('401')) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          router.push('/login');
+        }
       } finally {
         setLoading(false);
       }
