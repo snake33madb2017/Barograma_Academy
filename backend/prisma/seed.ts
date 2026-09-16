@@ -44,8 +44,10 @@ async function main() {
     },
   });
 
-  // 3. Create a Course
-  const course = await prisma.course.create({
+  // 3. Create a Course if not exists
+  const existingCourse = await prisma.course.findFirst();
+  if (!existingCourse) {
+    const course = await prisma.course.create({
     data: {
       title: 'Curso de Hostelería Barograma',
       description: 'Liderazgo y servicio al cliente.',
@@ -101,6 +103,7 @@ async function main() {
       }
     }
   });
+  }
 
   console.log('Seeding finished.');
 }
