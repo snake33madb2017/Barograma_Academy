@@ -5,7 +5,6 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
 @Controller('progress')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
 

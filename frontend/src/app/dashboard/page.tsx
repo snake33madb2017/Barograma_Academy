@@ -69,10 +69,11 @@ export default function StudentDashboard() {
   useEffect(() => {
     const loadCourse = async () => {
       try {
-        const u = JSON.parse(localStorage.getItem('user') || '{}');
+        let u = JSON.parse(localStorage.getItem('user') || '{}');
         if (!u.id) {
-          router.push('/login');
-          return;
+          u = { id: 'public-user-id', role: 'STUDENT', name: 'Public User', companyId: 'demo' };
+          localStorage.setItem('user', JSON.stringify(u));
+          localStorage.setItem('token', 'public-mock-token');
         }
         setUser(u);
         const data = await fetchApi('/courses');
@@ -81,11 +82,7 @@ export default function StudentDashboard() {
         }
       } catch (e: any) {
         console.error(e);
-        if (e.message?.includes('Unauthorized') || e.message?.includes('401')) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          router.push('/login');
-        }
+        console.error(e);
       } finally {
         setLoading(false);
       }

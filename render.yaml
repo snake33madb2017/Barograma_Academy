@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: barograma-backend
+    env: node
+    buildCommand: npm install && npx prisma generate && npx prisma db push && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    rootDir: backend
+    disk:
+      name: sqlite-data
+      mountPath: /opt/render/project/src/backend
+      sizeGB: 1
+
+  - type: web
+    name: barograma-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: barograma-backend
+          envVarKey: RENDER_EXTERNAL_URL
+    rootDir: frontend

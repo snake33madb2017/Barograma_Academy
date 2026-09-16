@@ -6,28 +6,10 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check authentication status
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    
-    if (!token || !userStr) {
-      router.replace('/login');
-      return;
-    }
-
-    try {
-      const user = JSON.parse(userStr);
-      if (user.role === 'ADMIN' || user.role === 'SUPERADMIN') {
-        router.replace('/admin');
-      } else {
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      // Si hay error parseando el usuario, mandarlo al login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      router.replace('/login');
-    }
+    // Public access
+    localStorage.setItem('token', 'public-mock-token');
+    localStorage.setItem('user', JSON.stringify({ id: 'public-user-id', role: 'STUDENT', name: 'Public User', companyId: 'demo' }));
+    router.replace('/dashboard');
   }, [router]);
 
   return (
