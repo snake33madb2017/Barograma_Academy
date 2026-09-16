@@ -15,11 +15,10 @@ services:
       mountPath: /opt/render/project/src/backend
       sizeGB: 1
 
-  - type: web
+  - type: static_site
     name: barograma-frontend
-    env: node
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    publishPath: out
     envVars:
       - key: NODE_ENV
         value: production
