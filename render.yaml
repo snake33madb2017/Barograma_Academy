@@ -10,10 +10,7 @@ services:
       - key: PORT
         value: 10000
     rootDir: backend
-    disk:
-      name: sqlite-data
-      mountPath: /opt/render/project/src/backend
-      sizeGB: 1
+
 
   - type: web
     name: barograma-frontend
