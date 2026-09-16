@@ -3,7 +3,7 @@ services:
     name: barograma-backend
     env: node
     buildCommand: npm install --include=dev && npx prisma generate && npx prisma db push && npx ts-node prisma/seed.ts && npm run build
-    startCommand: node dist/main.js
+    startCommand: node dist/src/main.js
     envVars:
       - key: NODE_ENV
         value: production
